@@ -21,7 +21,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 500px;
+            width: 600px;
         }
         h1, h2 {
             color: #333;
@@ -156,7 +156,9 @@
                         const row = studentTable.insertRow();
                         row.insertCell(0).innerText = student.name;
                         row.insertCell(1).innerText = student.grade;
-                        const deleteCell = row.insertCell(2);
+                        
+                        const actionCell = row.insertCell(2);
+
                         const deleteButton = document.createElement('button');
                         deleteButton.innerText = 'Hapus';
                         deleteButton.onclick = () => removeStudent(student.name);
@@ -166,7 +168,19 @@
                         deleteButton.style.color = 'white';
                         deleteButton.style.borderRadius = '4px';
                         deleteButton.style.cursor = 'pointer';
-                        deleteCell.appendChild(deleteButton);
+                        actionCell.appendChild(deleteButton);
+
+                        const editButton = document.createElement('button');
+                        editButton.innerText = 'Edit';
+                        editButton.onclick = () => editStudent(student.name);
+                        editButton.style.padding = '5px 10px';
+                        editButton.style.border = 'none';
+                        editButton.style.backgroundColor = '#ffc107';
+                        editButton.style.color = 'white';
+                        editButton.style.borderRadius = '4px';
+                        editButton.style.cursor = 'pointer';
+                        editButton.style.marginLeft = '10px';
+                        actionCell.appendChild(editButton);
                     });
                 }
             }
@@ -183,6 +197,17 @@
                     this.students.splice(index, 1);
                 }
                 this.displayStudents();
+            }
+
+            editStudent(name) {
+                const student = this.students.find(student => student.name === name);
+                if (student) {
+                    const newGrade = prompt(`Masukkan nilai baru untuk ${student.name}:`, student.grade);
+                    if (newGrade !== null) {
+                        student.grade = parseInt(newGrade, 10);
+                        this.displayStudents();
+                    }
+                }
             }
 
             calculateAverageGrade() {
@@ -228,6 +253,10 @@
 
         function removeStudent(name) {
             myClassroom.removeStudent(name);
+        }
+
+        function editStudent(name) {
+            myClassroom.editStudent(name);
         }
 
         function calculateAverageGrade() {
