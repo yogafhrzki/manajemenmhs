@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Kelas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 500px;
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 20px;
+        }
+        .form-group input {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #218838;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .actions button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .actions button:first-child {
+            background-color: #007bff;
+            color: white;
+        }
+        .actions button:first-child:hover {
+            background-color: #0069d9;
+        }
+        .actions button:last-child {
+            background-color: #dc3545;
+            color: white;
+        }
+        .actions button:last-child:hover {
+            background-color: #c82333;
+        }
+        #results {
+            margin-top: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manajemen Kelas</h1>
+        
+        <div class="form-group">
+            <input type="text" id="studentName" placeholder="Nama Siswa">
+            <input type="number" id="studentGrade" placeholder="Nilai Siswa">
+            <button onclick="addStudent()">Tambah Siswa</button>
+        </div>
+
+        <h2>Daftar Siswa</h2>
+        <table id="studentTable">
+            <thead>
+                <tr>
+                    <th>Nama Siswa</th>
+                    <th>Nilai</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td colspan="3">Tidak ada siswa di kelas.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="actions">
+            <button onclick="calculateAverageGrade()">Hitung Nilai Rata-rata</button>
+            <button onclick="displayHighestAndLowestGrades()">Tampilkan Nilai Tertinggi & Terendah</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        class Student {
+            constructor(name, grade) {
+                this.name = name;
+                this.grade = grade;
+            }
+        }
+
+        class Classroom {
+            constructor() {
+                this.students = [];
+            }
+
+            displayStudents() {
+                const studentTable = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
+                studentTable.innerHTML = '';
+                if (this.students.length === 0) {
+                    const row = studentTable.insertRow();
+                    const cell = row.insertCell(0);
+                    cell.colSpan = 3;
+                    cell.innerText = 'Tidak ada siswa di kelas.';
+                } else {
+                    this.students.forEach((student, index) => {
+                        const row = studentTable.insertRow();
+                        row.insertCell(0).innerText = student.name;
+                        row.insertCell(1).innerText = student.grade;
+                        const deleteCell = row.insertCell(2);
+                        const deleteButton = document.createElement('button');
+                        deleteButton.innerText = 'Hapus';
+                        deleteButton.onclick = () => removeStudent(student.name);
+                        deleteButton.style.padding = '5px 10px';
+                        deleteButton.style.border = 'none';
+                        deleteButton.style.backgroundColor = '#dc3545';
+                        deleteButton.style.color = 'white';
+                        deleteButton.style.borderRadius = '4px';
+                        deleteButton.style.cursor = 'pointer';
+                        deleteCell.appendChild(deleteButton);
+                    });
+                }
+            }
+
+            addStudent(name, grade) {
+                const newStudent = new Student(name, grade);
+                this.students.push(newStudent);
+                this.displayStudents();
+            }
+
+            removeStudent(name) {
+                const index = this.students.findIndex(student => student.name === name);
+                if (index !== -1) {
+                    this.students.splice(index, 1);
+                }
+                this.displayStudents();
+            }
+
+            calculateAverageGrade() {
+                const results = document.getElementById('results');
+                if (this.students.length === 0) {
+                    results.innerHTML = 'Tidak ada siswa di kelas untuk menghitung nilai rata-rata.';
+                    return;
+                }
+                const totalGrades = this.students.reduce((sum, student) => sum + student.grade, 0);
+                const average = totalGrades / this.students.length;
+                results.innerHTML = `Nilai rata-rata kelas adalah ${average.toFixed(2)}.`;
+            }
+
+            displayHighestAndLowestGrades() {
+                const results = document.getElementById('results');
+                if (this.students.length === 0) {
+                    results.innerHTML = 'Tidak ada siswa di kelas untuk menentukan nilai tertinggi dan terendah.';
+                    return;
+                }
+                let highest = this.students[0];
+                let lowest = this.students[0];
+                this.students.forEach(student => {
+                    if (student.grade > highest.grade) highest = student;
+                    if (student.grade < lowest.grade) lowest = student;
+                });
+                results.innerHTML = `Nilai tertinggi: ${highest.name} dengan ${highest.grade}<br>Nilai terendah: ${lowest.name} dengan ${lowest.grade}`;
+            }
+        }
+
+        const myClassroom = new Classroom();
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value;
+            const grade = parseInt(document.getElementById('studentGrade').value, 10);
+            if (name && !isNaN(grade)) {
+                myClassroom.addStudent(name, grade);
+                document.getElementById('studentName').value = '';
+                document.getElementById('studentGrade').value = '';
+            } else {
+                alert('Harap masukkan nama dan nilai yang valid.');
+            }
+        }
+
+        function removeStudent(name) {
+            myClassroom.removeStudent(name);
+        }
+
+        function calculateAverageGrade() {
+            myClassroom.calculateAverageGrade();
+        }
+
+        function displayHighestAndLowestGrades() {
+            myClassroom.displayHighestAndLowestGrades();
+        }
+    </script>
+</body>
+</html>
